@@ -28,17 +28,8 @@ versionInfo:    GameID
         desc = 'Demo game for the notReallyRandom library. '
         version = '1.0'
         IFID = '12345'
-	showAbout() {
-		"This is a simple test game that demonstrates the features
-		of the notReallyRandom library.
-		<.p>
-		In-game that's pretty much all there is to it.  Consult the
-		README.txt document distributed with the library source for
-		a quick summary of how to use the library in your own games.
-		<.p>
-		The library source is also extensively commented in a way
-		intended to make it as readable as possible. ";
-	}
+	// No ABOUT text because we're not interactive
+	showAbout() {}
 ;
 // Game world only contains the bare minimum required to successfully compile
 // because we never reach a prompt in it.
@@ -50,6 +41,7 @@ gameMain:       GameMainDef
 	runTests() {
 		local i;
 
+#ifdef __DEBUG_NOT_REALLY_RANDOM
 		"<.p>Starting tests.<.p>";
 		i = 0;
 		if(!notReallyRandom.nrrReseedTest()) i += 1;
@@ -66,6 +58,11 @@ gameMain:       GameMainDef
 		} else {
 			"FAILED <<toString(i)>> test<<((i > 1) ? 's' : '')>>.<.p> ";
 		}
+#else // __DEBUG_NOT_REALLY_RANDOM
+		// Complain if we were compiled without the test logic
+		"Tests cannot be run because the notReallyRandom library was compiled without the __DEBUG_NOT_REALLY_RANDOM flag. ";
+		"<.p> ";
+#endif // __DEBUG_NOT_REALLY_RANDOM
 	}
 	showGoodbye() {}
 ;

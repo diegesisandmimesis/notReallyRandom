@@ -97,15 +97,3 @@ randomDirection(diag?, prng?) {
 	if(diag == true) l += [ 'ne', 'nw', 'se', 'sw' ];
 	return(randomShuffle(l, prng));
 }
-
-/*
-randomInt(min, max, prng?) {
-	local v;
-
-	v = new BigNumber(rand(2147483647) / new BigNumber(2147483647));
-	min = new BigNumber(min);
-	max = new BigNumber(max);
-	return(toInteger(((v * (max - min + 1)).getFloor() + min).getFloor()));
-	return(gNRRrand(min, max));
-}
-*/

@@ -4,11 +4,16 @@
 
 #include "notReallyRandom.h"
 
+// Debugging/testing logic.
+// This is all wrapped in a big #ifdef to allow production code to be
+// compiled without the testing stuff.
 #ifdef __DEBUG_NOT_REALLY_RANDOM
 
 #include <bignum.h>
 
+// Update the notReallyRandom class to add testing methods
 modify notReallyRandom
+	// Properties to hold values used in Chi square testing
 	_chiSquareRangeMax = nil
 	_chiSquareSeed = nil
 
@@ -178,13 +183,16 @@ modify notReallyRandom
 
 		return(r);
 	}
+
+	// Run a Wald-Wolfowitz runs test
+	// This is a very basic test of the independence of successive
+	// PRNG values.
 	nrrRunsTest(prng, seed?) {
 		local runs, n, r, z;
 
 		"<.p>";
 		// Number of values to generate
 		n = 65536;
-		//n = 20;
 
 		"nrrRunsTest:  running test with <<toString(n)>> values\n ";
 
@@ -382,6 +390,23 @@ class NotReallyRandomChiSquare: object
 	success() { return(_success); }
 ;
 
+
+// Implements a Wald-Wolfowitz runs test
+// Usage:
+//
+//	// Create a new runs test.  Args are a NotReallyRandomPRNG
+//	// instance and the number of values to generate for the test.
+//	test = new NotReallyRandomChiSquare(prng, n);
+//
+//	// Actually run the test, returning the Z value
+//	z = test.runTest();
+//
+//	// Compare the computed Z value to the critical value.
+//	if(z <= test.getCritical()) {
+//		// success
+//	} else {
+//		// failure
+//	}
 class NotReallyRandomRunsTest: object
 	_prng = nil		// the PRNG we're evaluating
 	_count = nil		// the number of values we need to generate
@@ -420,7 +445,6 @@ class NotReallyRandomRunsTest: object
 		for(i = 0; i < _count; i++) {
 			// Generate a new value
 			v = _prng.random();
-//"\nv = <<toString(v)>>\n ";
 
 			// Check to see if this is the first time through
 			// the loop.
