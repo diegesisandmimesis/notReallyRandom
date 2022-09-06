@@ -4,7 +4,6 @@
 
 #include <bignum.h>
 
-
 #include "notReallyRandom.h"
 
 // Module ID for the library
