@@ -97,3 +97,28 @@ randomDirection(diag?, prng?) {
 	if(diag == true) l += [ 'ne', 'nw', 'se', 'sw' ];
 	return(randomShuffle(l, prng));
 }
+
+// Slightly braindead method to convert a string into a 16 bit integer seed.
+// We generate the MD5 hash of the string and then xor 16-bit chunks together
+// and return the result.
+// NOT SAFE FOR CRYPTOGRAPHIC PURPOSES, but fine for what we want, which
+// is to be able to convert a user-typed word or phrase into a PRNG seed
+// for procgen stuff.
+notReallyRandomStringToSeed(str) {
+	local d, i, s, v;
+
+	d = str.digestMD5();
+	i = 0;
+	v = 0;
+	while(i < d.length) {
+		i += 4;
+		s = toInteger(d.substr(i, 4), 16);
+		if(i > 0) {
+			v = v ^ s;
+		} else {
+			v = s;
+		}
+	}
+
+	return(v);
+}
