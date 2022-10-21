@@ -107,6 +107,9 @@ randomDirection(diag?, prng?) {
 notReallyRandomStringToSeed(str) {
 	local d, i, s, v;
 
+	if((str == nil) || (dataType(str) != TypeSString))
+		return(-1);
+
 	d = str.digestMD5();
 	i = 0;
 	v = 0;
