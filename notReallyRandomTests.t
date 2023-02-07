@@ -291,7 +291,9 @@ class NotReallyRandomChiSquare: object
 
 		// Create a list as long as the range of values and
 		// initialize each element to zero
-		_buckets = makeList(0, range);
+		//_buckets = makeList(0, range);
+		_buckets = new Vector(range);
+		_buckets.fillValue(0, 1, range);
 
 		// Figure out what the expectation value of each bucket
 		// is.  Since the PRNG should output each integer in its
