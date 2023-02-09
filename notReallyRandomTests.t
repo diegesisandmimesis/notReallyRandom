@@ -9,6 +9,7 @@
 // compiled without the testing stuff.
 #ifdef __DEBUG_NOT_REALLY_RANDOM
 
+#include <date.h>
 #include <bignum.h>
 
 // Update the notReallyRandom class to add testing methods
@@ -17,21 +18,37 @@ modify notReallyRandom
 	_chiSquareRangeMax = nil
 	_chiSquareSeed = nil
 
+	_svc = nil
+
+	getInterval(d) {
+		if((d == nil) || !d.ofKind(Date))
+			return(nil);
+		return((new Date() - d) * 86400);
+	}
+
+	_error(v) { "\n<<(_svc ? '<<_svc>>:' : '')>> <<v>>\n "; }
+#ifdef __DEBUG_NOT_REALLY_RANDOM_VERBOSE
+	_debug(v) { "\n<<(_svc ? '<<_svc>>:' : '')>> <<v>>\n "; }
+#else // __DEBUG_NOT_REALLY_RANDOM_VERBOSE
+	_debug(v) {}
+#endif // __DEBUG_NOT_REALLY_RANDOM_VERBOSE
+
 	// Trivial test that seeds the PRNG, generates a bunch of values,
 	// then re-sets the seed to the same value, generates a bunch more
 	// values, and then compares the results.
 	// There is not situation in which this should ever fail, so if it
 	// does there be troubles ahead.
 	nrrReseedTest(seed?) {
-		local err, foo, bar, i, n;
+		local err, foo, bar, i, n, r;
+
+		_svc = 'nrrReseedTest';
 
 		// Number of values to generate per run
 		n = 65535;
-		"<.p>";
-		"nrrReseedTest:  running test with <<toString(n)>> values\n ";
+		_debug('running test with <<toString(n)>> values');
 
 		if(seed == nil) seed = rand(n);
-		"nrrReseedTest:  using seed <<toString(seed)>>\n ";
+		_debug('using seed <<toString(seed)>>');
 
 		foo = new Vector(n);
 		bar = new Vector(n);
@@ -46,15 +63,17 @@ modify notReallyRandom
 		err = 0;
 		for(i = 1; i <= n; i++) {
 			if(foo[i] != bar[i]) {
-				"nrrReseedTest:  FAILURE: mismatch at <<toString(i)>>\n ";
+				_error('FAILURE: mismatch at <<toString(i)>>');
 				err += 1;
 			}
 		}
+		r = nil;
 		if(err == 0) {
-			"nrrReseedTest:  success\n ";
-			return(true);
+			_debug('success');
+			r = true;
 		}
-		return(nil);
+		_svc = nil;
+		return(r);
 	}
 
 	// Test generation of "positional" PRNG values.  In principle the
@@ -62,15 +81,16 @@ modify notReallyRandom
 	// PRNG, so this is mostly to test for implemention errors in
 	// the positional-specific code.
 	nrrXYTest(seed?) {
-		local err, foo, bar, i, n, xs, ys;
+		local err, foo, bar, i, n, r, xs, ys;
+
+		_svc = 'nrrXYTest';
 
 		// Number of values to generate per run
 		n = 65535;
-		"<.p>";
-		"nrrXYTest:  running test with <<toString(n)>> values\n ";
+		_debug('running test with <<toString(n)>> values');
 
 		if(seed == nil) seed = rand(n);
-		"nrrXYTest:  using seed <<toString(seed)>>\n ";
+		_debug('using seed <<toString(seed)>>');
 
 		foo = new Vector(n);
 		bar = new Vector(n);
@@ -89,15 +109,17 @@ modify notReallyRandom
 		err = 0;
 		for(i = 1; i <= n; i++) {
 			if(foo[i] != bar[i]) {
-				"nrrXYTest:  FAILURE: mismatch at <<toString(i)>>\n ";
+				_error('FAILURE: mismatch at <<toString(i)>>');
 				err += 1;
 			}
 		}
+		r = nil;
 		if(err == 0) {
-			"nrrXYTest:  success\n ";
-			return(true);
+			_debug('success');
+			r = true;
 		}
-		return(nil);
+		_svc = nil;
+		return(r);
 	}
 
 	// Test generation of "indexed" PRNG values.  In principle the
@@ -105,15 +127,15 @@ modify notReallyRandom
 	// PRNG, so this is mostly to test for implemention errors in
 	// the index-specific code.
 	nrrIdxTest(seed?) {
-		local err, foo, bar, i, n, xs;
+		local err, foo, bar, i, r, n, xs;
 
+		_svc = 'nrrIdxTest';
 		// Number of values to generate per run
 		n = 65535;
-		"<.p>";
-		"nrrIdxTest:  running test with <<toString(n)>> values\n ";
+		_debug('running test with <<toString(n)>> values');
 
 		if(seed == nil) seed = rand(n);
-		"nrrIdxTest:  using seed <<toString(seed)>>\n ";
+		_debug('using seed <<toString(seed)>>');
 
 		foo = new Vector(n);
 		bar = new Vector(n);
@@ -130,15 +152,17 @@ modify notReallyRandom
 		err = 0;
 		for(i = 1; i <= n; i++) {
 			if(foo[i] != bar[i]) {
-				"nrrIdxTest:  FAILURE: mismatch at <<toString(i)>>\n ";
+				_error('FAILURE: mismatch at <<toString(i)>>');
 				err += 1;
 			}
 		}
+		r = nil;
 		if(err == 0) {
-			"nrrIdxTest:  success\n ";
-			return(true);
+			_debug('success');
+			r = true;
 		}
-		return(nil);
+		_svc = nil;
+		return(r);
 	}
 
 	// Run a Chi-square test.  
@@ -154,33 +178,35 @@ modify notReallyRandom
 	nrrChiSquareTest(prng, seed?) {
 		local chi, n, r, v;
 
-		"<.p>";
+		_svc = 'nrrChiSquareTest';
 		// Number of values to generate
 		n = 65536;
 		// Generate values in the range 1 through this
 		_chiSquareRangeMax = 255;
 
-		"nrrChiSquareTest:  running test with <<toString(n)>> values\n ";
+		_debug('running test with <<toString(n)>> values');
 
 		if(seed != nil) prng.setSeed(seed);
-		"nrrChiSquareTest:  using seed <<toString(prng.getSeed())>>\n ";
+		_debug('using seed <<toString(prng.getSeed())>>');
 
-		"nrrChiSquareTest:  using values <<toString(prng._min)>> - <<toString(prng._max)>>\n ";
+		_debug('using values <<toString(prng._min)>> -
+			<<toString(prng._max)>>');
 		chi = new NotReallyRandomChiSquare(prng, n);
 		v = chi.runTest();
 
-		"nrrChiSquareTest:  chi square value = <<toString(v)>>\n ";
-		"nrrChiSquareTest:  critical = <<chi.checkCritical(v)>>\n ";
+		_debug('chi square value = <<toString(v)>>');
+		_debug('critical = <<chi.checkCritical(v)>>');
 
 		r = nil;
 		if(chi.success()) {
-			"nrrChiSquareTest:  success\n ";
+			_debug('success');
 			r = true;
 		} else {
-			"nrrChiSquareTest:  FAILED\n ";
+			_error('FAILED');
 		}
-		"nrrChiSquareTest:  done\n ";
+		_debug('done');
 
+		_svc = nil;
 		return(r);
 	}
 
@@ -190,33 +216,34 @@ modify notReallyRandom
 	nrrRunsTest(prng, seed?) {
 		local runs, n, r, z;
 
-		"<.p>";
+		_svc = 'nrrRunsTest';
 		// Number of values to generate
 		n = 65536;
 
-		"nrrRunsTest:  running test with <<toString(n)>> values\n ";
+		_debug('running test with <<toString(n)>> values');
 
 		if(seed != nil) prng.setSeed(seed);
-		"nrrRunsTest:  using seed <<toString(prng.getSeed())>>\n ";
+		_debug('using seed <<toString(prng.getSeed())>>');
 		runs = new NotReallyRandomRunsTest(prng, n);
 
 		r = nil;
 		z = runs.runTest();
 		if(z) {
-			"nrrRunsTest:  Z = <<toString(z)>>\n ";
-			"nrrRunsTest:  mean = <<toString(runs.mean())>>\n ";
-			"nrrRunsTest:  variance = <<toString(runs.variance())>>\n ";
+			_debug('Z = <<toString(z)>>');
+			_debug('mean = <<toString(runs.mean())>>');
+			_debug('variance = <<toString(runs.variance())>>');
 			if(z <= runs.getCritical()) {
-				"nrrRunsTest:  success\n ";
+				_debug('success');
 				r = true;
 			} else {
-				"nrrRunsTest:  FAILURE\n ";
+				_error('FAILURE');
 			}
 		} else {
-			"nrrRunsTest:  ERROR:  Failed to compute Z value\n ";
+			_error('ERROR:  Failed to compute Z value');
 		}
 
-		"nrrRunsTest:  done\n ";
+		_debug('done');
+		_svc = nil;
 		return(r);
 	}
 ;
@@ -282,7 +309,8 @@ class NotReallyRandomChiSquare: object
 		range = prng._max - prng._min + 1;
 
 		if(range % 64) {
-			"NotReallyRandomChiSquare:  ERROR:  range is not a multiple of 64.\n ";
+			"NotReallyRandomChiSquare:  ERROR:  range is not a
+				multiple of 64.\n ";
 			"   THIS WILL CAUSE THE TEST TO FAIL.\n ";
 			exit;
 		}
@@ -500,7 +528,6 @@ class NotReallyRandomRunsTest: object
 			_variance = ((ev - new BigNumber(1))
 				* (ev - new BigNumber(2)))
 				/ (new BigNumber(_n) - new BigNumber(1));
-			//_variance = _variance.sqrt();
 		}
 		return(_variance);
 	}

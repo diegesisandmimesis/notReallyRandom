@@ -21,43 +21,34 @@
 #include <adv3.h>
 #include <en_us.h>
 
+#include <date.h>
+
 #include "notReallyRandom.h"
 
-versionInfo:    GameID
-        name = 'notReallyRandom Library Performance Test Game'
-        byline = 'Diegesis & Mimesis'
-        desc = 'Performance test for the notReallyRandom library. '
-        version = '1.0'
-        IFID = '12345'
-	// No ABOUT because we're not interactive
-	showAbout() {}
-;
-// Game world only contains the bare minimum required to successfully compile
-// because we never reach a prompt in it.
+versionInfo:    GameID;
+
 gameMain:       GameMainDef
+	runs = 1000000
+
 	newGame() {
 		runTests();
 	}
 	runTests() {
-		local i, x;
+		local d, i, x;
 
 		// This is pretty useless.
 		// This entire "test" is really just here to be a template
-		// to be edited and recompiled to compare options.
-		// I.e.
-		// 	# time emglken ./games/performanceTest.t3
-		//	[some numbers]
-		//	# vi src/performanceTest.t
-		//	# t3make -a -d -f performanceTest.t3m
-		// 	# time emglken ./games/performanceTest.t3
-		//	[some different numbers]
-		// ...and so on
-		"<.p>Starting tests.<.p>";
-		for(i = 0; i < 1000000; i++) {
+		// to be edited and recompiled to compare the performance
+		// of different modifications.
+		d = new Date();
+		"<.p>Generating <<toString(runs)>> random integers.\n ";
+		for(i = 0; i < runs; i++) {
 			x = randomInt(0, 9);
 		}
-		if(!x) return;
-		"<.p>Tests complete.<.p> ";
+		if(x) {}
+		"Done.<.p> ";
+		"Test took <<toString(notReallyRandom.getInterval(d))>>
+			seconds.<.p> ";
 	}
 	showGoodbye() {}
 ;

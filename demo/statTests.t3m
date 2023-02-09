@@ -1,9 +1,9 @@
 -D LANGUAGE=en_us
 -D MESSAGESTYLE=neu
--D __DEBUG_NOT_REALLY_RANDOM=true
+-D __DEBUG_NOT_REALLY_RANDOM
 -Fy obj -Fo obj
--o games/basicTests.t3
+-o games/statTests.t3
 -lib system
 -lib adv3/adv3
 -lib ../notReallyRandom
--source src/basicTests.t
+-source src/statTests.t
