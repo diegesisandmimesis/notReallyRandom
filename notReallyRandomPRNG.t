@@ -81,6 +81,8 @@ class NotReallyRandomPRNG: object
 		return(new BigNumber(fixValue(v)) / maxBigNum());
 	}
 
+/*
+	// NAH DUMB WE ARE NOT DOING THIS ANYMORE.
 	// Just a convenience method.
 	// Convert the value to an integer between min and max (inclusive).
 	toRange(v, min, max) {
@@ -97,6 +99,7 @@ class NotReallyRandomPRNG: object
 		// magnitude slower than the below, so we do the below instead.
 		return((fixValue(v) % (max - min + 1)) + min);
 	}
+*/
 
 	// This is the method by which we access the PRNG.  This is an
 	// abstract class so we don't implement an actual PRNG here, but
@@ -110,21 +113,102 @@ class NotReallyRandomPRNG: object
 	//	max	Maximum value returned
 	//	seed	Seed value to use for the PRNG
 	random(min?, max?, seed?) {
-		return(toRange(nextValue(seed), min, max));
+		local n, r, range, v;
+
+		// Sanity check our arguments.
+		if((min == nil) || (min < 0)) min = 0;
+		if((max == nil) || (max > _bigInt)) max = _bigInt;
+
+		// We handle the case where we're pulling a number from
+		// the full range separately to avoid the comparatively
+		// expensive modulo operation.
+		if((min == 0) && (max == _bigInt)) {
+			v = nextValue(seed);
+
+			// When we're out of range we just chuck the value
+			// and grab the next, because anything we'd do to
+			// munge the value into range would skew the histogram.
+			while((v < 0) || (v > _bigInt))
+				v = nextValue();
+
+			return(v);
+		} else {
+			// Compute the size of the range we're picking from.
+			range = max - min + 1;
+
+			// Figure out how many of our ranges fit inside the
+			// maximum integer range.
+			r = _bigInt / range;
+
+			// The size of the above times our range.  If the
+			// number we pick is less than or equal to this, then
+			// we can safely convert it to a number inside our
+			// desired range without skewing the results.
+			n = range * r;
+
+			// Keep picking values until we get one in our range.
+			v = nextValue(seed);
+			while((v < 0) || (v >= n))
+				v = nextValue();
+
+			return((v % range) + min);
+		}
 	}
 
 	// idx() returns a pseudorandom value that (deterministically)
 	// depends not only on the seed (if given, the PRNG's current seed
 	// otherwise) but also on the passed index value.
+	// Most of the logic is almost identical to the logic of random()
+	// above, but all the differences are in the loop, so we avoid
+	// calling methods or doing conditionals to improve performance.
 	idx(x, min?, max?, seed?) {
-		return(toRange(x ^ nextValue(seed), min, max));
+		local n, r, range, v;
+
+		if((min == nil) || (min < 0)) min = 0;
+		if((max == nil) || (max > _bigInt)) max = _bigInt;
+
+		if((min == 0) && (max == _bigInt)) {
+			v = nextValue(seed) ^ nextValue(x);
+			while((v < 0) || (v > _bigInt))
+				v = nextValue() ^ nextValue(x);
+			return(v);
+		} else {
+			range = max - min + 1;
+			r = _bigInt / range;
+			n = range * r;
+			v = nextValue(seed) ^ nextValue(x);
+			while((v < 0) || (v >= n))
+				v = nextValue() ^ nextValue(x);
+			return((v % range) + min);
+		}
 	}
 
 	// xy() returns a pseudorandom value that (deterministically)
 	// depends not only on the seed value but also on the passed
 	// x and y values.
+	// As with the idx() method above, this mostly duplicates logic
+	// from random() but we deal with that via duplicating the code
+	// for better performance.
 	xy(x, y, min?, max?, seed?) {
-		return(toRange(x ^ y ^ nextValue(seed), min, max));
+		local n, r, range, v;
+
+		if((min == nil) || (min < 0)) min = 0;
+		if((max == nil) || (max > _bigInt)) max = _bigInt;
+
+		if((min == 0) && (max == _bigInt)) {
+			v = nextValue(seed) ^ nextValue(x) ^ nextValue(y);
+			while((v < 0) || (v > _bigInt))
+				v = nextValue() ^ nextValue(x) ^ nextValue(y);
+			return(v);
+		} else {
+			range = max - min + 1;
+			r = _bigInt / range;
+			n = range * r;
+			v = nextValue(seed) ^ nextValue(x) ^ nextValue(y);
+			while((v < 0) || (v >= n))
+				v = nextValue() ^ nextValue(x) ^ nextValue(y);
+			return((v % range) + min);
+		}
 	}
 
 	// fix() returns an integer in the range [min - max], given a
