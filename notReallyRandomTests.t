@@ -12,53 +12,99 @@
 #include <date.h>
 #include <bignum.h>
 
-// Update the notReallyRandom class to add testing methods
-modify notReallyRandom
-	// Properties to hold values used in Chi square testing
-	_chiSquareRangeMax = nil
-	_chiSquareSeed = nil
+// Convenience object included only when the debugging flag is set.
+// start() saves the current time, getInterval() returns the number of
+// seconds since start() was called, as a BigNumber.
+notReallyRandomTimer: object
+	_start = nil
 
-	_svc = nil
+	start() { _start = new Date(); }
+	getInterval() { return((_start != nil)
+		? ((new Date() - _start) * 86400)
+		: nil); }
+;
 
-	getInterval(d) {
-		if((d == nil) || !d.ofKind(Date))
-			return(nil);
-		return((new Date() - d) * 86400);
+// Abstract class for our tests.
+class NotReallyRandomTest: object
+	svc = nil		// string prefix to use for debugging output
+	prng = nil		// PRNG instance to test
+	seed = nil		// saved copy of the seed we started with
+
+	// Args are:
+	//	p	PRNG instance
+	//	s	seed
+	//	mn	minimum value for PRNG output (not used if p is non-nil)
+	//	mx	max value for PRNG output (not used if p is non-nil)
+	//	n	int range for seed (not used if seed is non-nil)
+	construct(p?, s?, mn?, mx?, n?) {
+		n = ((n != nil) ? n : 65535);
+		seed = ((s != nil) ? s : rand(n));
+		prng = (p ? p : new XORshiftPRNG(seed, mn, mx));
 	}
 
-	_error(v) { "\n<<(_svc ? '<<_svc>>:' : '')>> <<v>>\n "; }
-#ifdef __DEBUG_NOT_REALLY_RANDOM_VERBOSE
-	_debug(v) { "\n<<(_svc ? '<<_svc>>:' : '')>> <<v>>\n "; }
-#else // __DEBUG_NOT_REALLY_RANDOM_VERBOSE
+	// Logging methods.
+	_error(v) { "\n<<(svc ? '<<svc>>:' : '')>> <<v>>\n "; }
 	_debug(v) {}
-#endif // __DEBUG_NOT_REALLY_RANDOM_VERBOSE
 
-	// Trivial test that seeds the PRNG, generates a bunch of values,
-	// then re-sets the seed to the same value, generates a bunch more
-	// values, and then compares the results.
-	// There is not situation in which this should ever fail, so if it
-	// does there be troubles ahead.
-	nrrReseedTest(seed?) {
-		local err, foo, bar, i, n, r;
+	// Stub method.  This is the entry point for external callers, needs
+	// to be set to be something useful by subclasses/instances.
+	runTest() {}
+;
 
-		_svc = 'nrrReseedTest';
+class NotReallyRandomRangeTest: NotReallyRandomTest
+	svc = 'nrrRangeTest'
+
+	runTest() {
+		local err, i, min, max, n, v;
+
+		err = new Vector(2);
+		err.fillValue(0, 1, 2);
+		n = 100000;
+		for(i = 0; i < n; i++) {
+			min = rand(100);
+			max = rand(10000) + min + 1;
+			v = prng.random(min, max);
+			if(v < min) err[1] += 1;
+			if(v > max) err[2] += 1;
+		}
+		_debug('generated <<toString(n)>> values'); 
+		if((err[1] == 0) && (err[2] == 0)) {
+			_debug('success');
+			return(true);
+		}
+		_error('out of range low: <<toString(err[1])>>');
+		_error('out of range high: <<toString(err[2])>>');
+		_error('FAILED');
+		return(nil);
+	}
+;
+
+// Trivial test that seeds the PRNG, generates a bunch of values,
+// then re-sets the seed to the original value, generates a bunch more
+// values, and then compares the results.
+// There is not situation in which this should ever fail, so if it
+// does there be troubles ahead.
+class NotReallyRandomReseedTest: NotReallyRandomTest
+	svc = 'nrrReseedTest'
+
+	runTest() {
+		local err, foo, bar, i, n;
 
 		// Number of values to generate per run
 		n = 65535;
 		_debug('running test with <<toString(n)>> values');
 
-		if(seed == nil) seed = rand(n);
 		_debug('using seed <<toString(seed)>>');
 
 		foo = new Vector(n);
 		bar = new Vector(n);
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
-			foo += gNRRrand(1, 10);
+			foo += prng.random(1, 10);
 		}
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
-			bar += gNRRrand(1, 10);
+			bar += prng.random(1, 10);
 		}
 		err = 0;
 		for(i = 1; i <= n; i++) {
@@ -67,44 +113,43 @@ modify notReallyRandom
 				err += 1;
 			}
 		}
-		r = nil;
 		if(err == 0) {
 			_debug('success');
-			r = true;
+			return(true);
 		}
-		_svc = nil;
-		return(r);
+		return(nil);
 	}
+;
 
-	// Test generation of "positional" PRNG values.  In principle the
-	// positional PRNG should be no "worse" than the underlying base
-	// PRNG, so this is mostly to test for implemention errors in
-	// the positional-specific code.
-	nrrXYTest(seed?) {
-		local err, foo, bar, i, n, r, xs, ys;
+// Test generation of "positional" PRNG values.  In principle the
+// positional PRNG should be no "worse" than the underlying base
+// PRNG, so this is mostly to test for implemention errors in
+// the positional-specific code.
+class NotReallyRandomXYTest: NotReallyRandomTest
+	svc = 'nrrXYTest'
 
-		_svc = 'nrrXYTest';
+	runTest() {
+		local err, foo, bar, i, n, xs, ys;
 
 		// Number of values to generate per run
 		n = 65535;
 		_debug('running test with <<toString(n)>> values');
 
-		if(seed == nil) seed = rand(n);
 		_debug('using seed <<toString(seed)>>');
 
 		foo = new Vector(n);
 		bar = new Vector(n);
 		xs = new Vector(n);
 		ys = new Vector(n);
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
 			xs += rand(256);
 			ys += rand(256);
-			foo += gNRRxy(xs[i + 1], ys[i + 1], 1, 10);
+			foo += prng.xy(xs[i + 1], ys[i + 1], 1, 10);
 		}
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
-			bar += gNRRxy(xs[i + 1], ys[i + 1], 1, 10);
+			bar += prng.xy(xs[i + 1], ys[i + 1], 1, 10);
 		}
 		err = 0;
 		for(i = 1; i <= n; i++) {
@@ -113,23 +158,24 @@ modify notReallyRandom
 				err += 1;
 			}
 		}
-		r = nil;
 		if(err == 0) {
 			_debug('success');
-			r = true;
+			return(true);
 		}
-		_svc = nil;
-		return(r);
+		return(nil);
 	}
+;
 
-	// Test generation of "indexed" PRNG values.  In principle the
-	// indexed PRNG should be no "worse" than the underlying base
-	// PRNG, so this is mostly to test for implemention errors in
-	// the index-specific code.
-	nrrIdxTest(seed?) {
-		local err, foo, bar, i, r, n, xs;
+// Test generation of "indexed" PRNG values.  In principle the
+// indexed PRNG should be no "worse" than the underlying base
+// PRNG, so this is mostly to test for implemention errors in
+// the index-specific code.
+class NotReallyRandomIdxTest: NotReallyRandomTest
+	svc = 'nrrIdxTest'
 
-		_svc = 'nrrIdxTest';
+	runTest() {
+		local err, foo, bar, i, n, xs;
+
 		// Number of values to generate per run
 		n = 65535;
 		_debug('running test with <<toString(n)>> values');
@@ -140,14 +186,14 @@ modify notReallyRandom
 		foo = new Vector(n);
 		bar = new Vector(n);
 		xs = new Vector(n);
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
 			xs += rand(256);
-			foo += gNRRidx(xs[i + 1], 1, 10);
+			foo += prng.idx(xs[i + 1], 1, 10);
 		}
-		gNRRseed(seed);
+		prng.setSeed(seed);
 		for(i = 0; i < n; i++) {
-			bar += gNRRidx(xs[i + 1], 1, 10);
+			bar += prng.idx(xs[i + 1], 1, 10);
 		}
 		err = 0;
 		for(i = 1; i <= n; i++) {
@@ -156,29 +202,31 @@ modify notReallyRandom
 				err += 1;
 			}
 		}
-		r = nil;
 		if(err == 0) {
 			_debug('success');
-			r = true;
+			return(true);
 		}
-		_svc = nil;
-		return(r);
+		return(nil);
 	}
+;
 
-	// Run a Chi-square test.  
-	// This is NOT a rigorous test for randomness.  All it evaluates (in
-	// this case) is how flat a histogram of the values generated by PRNG
-	// is--that is, we assume that an idea randomness source produces each
-	// value in its range with equal probability, and we compare the
-	// subject PRNG to this distribution.
-	// Even a very bad PRNG will pass this test (just enumerating the
-	// integers mod the max value will pass, for example), so this is
-	// mostly to catch gross implementation errors of various sorts;  it
-	// isn't a meaningful evaluation of the quality of the PRNG.
-	nrrChiSquareTest(prng, seed?) {
+// Run a Chi-square test.  
+// This is NOT a rigorous test for randomness.  All it evaluates (in
+// this case) is how flat a histogram of the values generated by PRNG
+// is--that is, we assume that an ideal randomness source produces each
+// value in its range with equal probability, and we compare the
+// subject PRNG to this distribution.
+// Even a very bad PRNG will pass this test (just enumerating the
+// integers mod the max value will pass, for example), so this is
+// mostly to catch gross implementation errors of various sorts;  it
+// isn't a meaningful evaluation of the quality of the PRNG.
+class NotReallyRandomChiSquareTest: NotReallyRandomTest
+	svc = 'nrrChiSquareTest'
+	_chiSquareRangeMax = nil
+
+	runTest() {
 		local chi, n, r, v;
 
-		_svc = 'nrrChiSquareTest';
 		// Number of values to generate
 		n = 65536;
 		// Generate values in the range 1 through this
@@ -186,12 +234,11 @@ modify notReallyRandom
 
 		_debug('running test with <<toString(n)>> values');
 
-		if(seed != nil) prng.setSeed(seed);
 		_debug('using seed <<toString(prng.getSeed())>>');
 
 		_debug('using values <<toString(prng._min)>> -
 			<<toString(prng._max)>>');
-		chi = new NotReallyRandomChiSquare(prng, n);
+		chi = new NotReallyRandomChiSquareWidget(prng, n);
 		v = chi.runTest();
 
 		_debug('chi square value = <<toString(v)>>');
@@ -206,25 +253,25 @@ modify notReallyRandom
 		}
 		_debug('done');
 
-		_svc = nil;
 		return(r);
 	}
+;
 
-	// Run a Wald-Wolfowitz runs test
-	// This is a very basic test of the independence of successive
-	// PRNG values.
-	nrrRunsTest(prng, seed?) {
+// Run a Wald-Wolfowitz runs test
+// This is a very basic test of the independence of successive
+// PRNG values.
+class NotReallyRandomRunsTest: NotReallyRandomTest
+	svc = 'nrrRunsTest'
+
+	runTest() {
 		local runs, n, r, z;
 
-		_svc = 'nrrRunsTest';
 		// Number of values to generate
 		n = 65536;
-
 		_debug('running test with <<toString(n)>> values');
 
-		if(seed != nil) prng.setSeed(seed);
 		_debug('using seed <<toString(prng.getSeed())>>');
-		runs = new NotReallyRandomRunsTest(prng, n);
+		runs = new NotReallyRandomRunsWidget(prng, n);
 
 		r = nil;
 		z = runs.runTest();
@@ -243,7 +290,6 @@ modify notReallyRandom
 		}
 
 		_debug('done');
-		_svc = nil;
 		return(r);
 	}
 ;
@@ -253,7 +299,7 @@ modify notReallyRandom
 //
 //	// Create a new Chi-square test.  Args are a NotReallyRandomPRNG
 //	// instance and the number of values to generate for the test.
-//	chi = new NotReallyRandomChiSquare(prng, n);
+//	chi = new NotReallyRandomChiSquareWidget(prng, n);
 //
 //	// Actually run the test, returning the chi value
 //	v = chi.runTest();
@@ -271,7 +317,7 @@ modify notReallyRandom
 //	and we don't need to know critical values for anything other
 //	than n = 64
 //
-class NotReallyRandomChiSquare: object
+class NotReallyRandomChiSquareWidget: object
 	_total = nil		// accumulator for the chi-square value
 	_buckets = nil		// list to hold the frequency counts
 	_ev = nil		// expectation value of an individual bucket
@@ -426,7 +472,7 @@ class NotReallyRandomChiSquare: object
 //
 //	// Create a new runs test.  Args are a NotReallyRandomPRNG
 //	// instance and the number of values to generate for the test.
-//	test = new NotReallyRandomChiSquare(prng, n);
+//	test = new NotReallyRandomRunsWidget(prng, n);
 //
 //	// Actually run the test, returning the Z value
 //	z = test.runTest();
@@ -437,7 +483,7 @@ class NotReallyRandomChiSquare: object
 //	} else {
 //		// failure
 //	}
-class NotReallyRandomRunsTest: object
+class NotReallyRandomRunsWidget: object
 	_prng = nil		// the PRNG we're evaluating
 	_count = nil		// the number of values we need to generate
 
@@ -535,5 +581,13 @@ class NotReallyRandomRunsTest: object
 		return(_critical);
 	}
 ;
+
+#ifdef __DEBUG_NOT_REALLY_RANDOM_VERBOSE
+
+modify NotReallyRandomTest
+	_debug(v) { "\n<<(svc ? '<<svc>>:' : '')>> <<v>>\n "; }
+;
+
+#endif // __DEBUG_NOT_REALLY_RANDOM_VERBOSE
 
 #endif // __DEBUG_NOT_REALLY_RANDOM

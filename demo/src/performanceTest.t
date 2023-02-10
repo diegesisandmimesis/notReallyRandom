@@ -34,20 +34,20 @@ gameMain:       GameMainDef
 		runTests();
 	}
 	runTests() {
-		local d, i, x;
+		local i, x;
 
 		// This is pretty useless.
 		// This entire "test" is really just here to be a template
 		// to be edited and recompiled to compare the performance
 		// of different modifications.
-		d = new Date();
+		notReallyRandomTimer.start();
 		"<.p>Generating <<toString(runs)>> random integers.\n ";
 		for(i = 0; i < runs; i++) {
 			x = randomInt(0, 9);
 		}
 		if(x) {}
 		"Done.<.p> ";
-		"Test took <<toString(notReallyRandom.getInterval(d))>>
+		"Test took <<toString(notReallyRandomTimer.getInterval())>>
 			seconds.<.p> ";
 	}
 	showGoodbye() {}

@@ -31,6 +31,11 @@ gameMain:       GameMainDef
 	// Simple test to make sure we're not generating values outside
 	// the allowed range.
 	runTest() {
+		local w;
+
+		w = new NotReallyRandomRangeTest();
+		if(w.runTest()) "Range test passed.\n ";
+/*
 		local eLow, eHigh, i, min, max, n, p, v;
 
 		eLow = 0;
@@ -54,5 +59,6 @@ gameMain:       GameMainDef
 			"Out of range low:  <<toString(eLow)>>\n ";
 			"Out of range high:  <<toString(eHigh)>>\n ";
 		}
+*/
 	}
 ;

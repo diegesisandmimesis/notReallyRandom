@@ -225,14 +225,6 @@ class NotReallyRandomPRNG: object
 		r = v * new BigNumber(max - min + 1);
 		return(r.getFloor() + min);
 	}
-
-	// Stub methods to make it easier to include the debugging routines
-	// in games without having them barf when compiled without the
-	// debugging flag.
-	nrrReseedTest() {}
-	nrrXYTest() {}
-	nrrIdxTest() {}
-	nrrChiSquareTest() {}
 ;
 
 // TADS3 implementation of Marsaglia's xorshift
