@@ -41,7 +41,8 @@ gameMain:       GameMainDef
 	newGame() {
 		notReallyRandomTimer.start();
 		runTests();
-		"<.p>Tests took <<toString(notReallyRandomTimer.getInterval())>>
+		"<.p>Tests took <<toString(notReallyRandomTimer.getInterval()
+			.roundToDecimal(3))>>
 			seconds.<.p> ";
 	}
 	runTests() {

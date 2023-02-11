@@ -294,6 +294,62 @@ class NotReallyRandomRunsTest: NotReallyRandomTest
 	}
 ;
 
+class NotReallyRandomFencepostTest: NotReallyRandomTest
+	svc = 'nrrFencepostTest'
+
+	runTest() {
+		local err, i, n, v;
+
+		n = 100000;
+		// We create buckets for three values (instead of two)
+		// in the theory that an off-by one error will be easier to
+		// diagnose by this test than by debugging a random
+		// indexing error thrown by the interpreter at runtime.
+		v = new Vector(3);
+		v.fillValue(0, 1, 3);
+		
+		_debug('running test with <<toString(n)>> values');
+		_debug('using seed <<toString(prng.getSeed())>>');
+
+		for(i = 0; i < n; i++) {
+			v[prng.random(0, 1) + 1] += 1;
+		}
+
+		err = nil;
+
+		// Off-by-one error of some kind.
+		if(v[1] == 0) {
+			err = true;
+			_error('ERROR:  no values in the zero bucket');
+		}
+
+		// Off-by-one error of some kind.
+		if(v[2] == 0) {
+			err = true;
+			_error('ERROR:  no values in the one bucket');
+		}
+
+		// PRNG generated out of range values.
+		if(v[1] + v[2] < n) {
+			err = true;
+			_error('ERROR:  missing values');
+		}
+
+		// No idea what would cause this.
+		if(v[1] + v[2] > n) {
+			err = true;
+			_error('ERROR:  too many values(?)');
+		}
+
+		if(err)
+			_error('FAILED');
+		else
+			_debug('done');
+
+		return(err != true);
+	}
+;
+
 // A domain-specific Chi-square test.
 // Usage:
 //

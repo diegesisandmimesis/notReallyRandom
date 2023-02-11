@@ -2,8 +2,8 @@
 -D MESSAGESTYLE=neu
 -D __DEBUG_NOT_REALLY_RANDOM=true
 -Fy obj -Fo obj
--o games/singleTest.t3
+-o games/fencepostTest.t3
 -lib system
 -lib adv3/adv3
 -lib ../notReallyRandom
--source src/singleTest.t
+-source src/fencepostTest.t
