@@ -39,25 +39,24 @@ gameMain:       GameMainDef
 	]
 	_prngIdx = 0
 	newGame() {
-		notReallyRandomTimer.start();
 		runTests();
-		"<.p>Tests took <<toString(notReallyRandomTimer.getInterval()
-			.roundToDecimal(3))>>
-			seconds.<.p> ";
 	}
 	runTests() {
 		local err, t;
 
-		"Starting tests.\n ";
 		err = 0;
 		t = 0;
 		
+		notReallyRandomTimer.start();
 		testList.forEach(function(o) {
 			t += 1;
 			if(!o.runTest()) err += 1;
 		});
 
-		"Ran <<toString(t)>> tests.\n ";
+		"Completed <<toString(t)>> tests in
+			<<toString(notReallyRandomTimer.getInterval()
+			.roundToDecimal(3))>>
+			seconds.\n ";
 		if(err == 0) {
 			"All tests passed.\n ";
 		} else {

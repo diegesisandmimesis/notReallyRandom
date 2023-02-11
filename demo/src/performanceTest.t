@@ -40,23 +40,23 @@ gameMain:       GameMainDef
 		// This entire "test" is really just here to be a template
 		// to be edited and recompiled to compare the performance
 		// of different modifications.
-		"Generating <<toString(runs)>> random integers:\n ";
 
-		// First we test our PRNG.
-		notReallyRandomTimer.start();
-		for(i = 0; i < runs; i++) { x = randomInt(0, 9); }
-		t0 = notReallyRandomTimer.getInterval();
-		"randomInt() took <<toString(t0.roundToDecimal(3))>>
-			seconds.\n ";
-
-		// And now we use builtin rand().
+		// Generate numbers with native rand() function.
 		notReallyRandomTimer.start();
 		for(i = 0; i < runs; i++) { x = rand(10); }
 		t1 = notReallyRandomTimer.getInterval();
-		"rand() took <<toString(t1.roundToDecimal(3))>> seconds.\n ";
+		"Generating <<toString(runs)>> integers:
+			rand() took <<toString(t1.roundToDecimal(3))>>
+			seconds.\n ";
 
+		// Generate numbers with our PRNG.
+		notReallyRandomTimer.start();
+		for(i = 0; i < runs; i++) { x = randomInt(0, 9); }
+		t0 = notReallyRandomTimer.getInterval();
 		x = t0/t1;
-		"randomInt() was <<toString(x.roundToDecimal(3))>> times
-			slower.\n ";
+		"Generating <<toString(runs)>> integers:
+			randomInt() took <<toString(t0.roundToDecimal(3))>>
+			seconds (<<toString(x.roundToDecimal(3))>>x
+			slower).\n ";
 	}
 ;
