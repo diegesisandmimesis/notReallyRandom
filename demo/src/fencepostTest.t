@@ -4,8 +4,8 @@
 // Version 1.0
 // Copyright 2022 Diegesis & Mimesis
 //
-// This is a very simple demonstration "game" that illustrates the
-// functionality of the notReallyRandom library
+// Simple test to check for silly off-by-one errors in the PRNG code
+// for generating values in an specified range.
 //
 // It can be compiled via the included makefile with
 //

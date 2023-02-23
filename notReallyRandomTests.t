@@ -51,6 +51,9 @@ class NotReallyRandomTest: object
 	runTest() {}
 ;
 
+// Trivial test that generates values in a randomly-selected range and
+// verifies that none of the PRNG outputs lie outside the requested
+// range(s).
 class NotReallyRandomRangeTest: NotReallyRandomTest
 	svc = 'nrrRangeTest'
 
@@ -294,6 +297,8 @@ class NotReallyRandomRunsTest: NotReallyRandomTest
 	}
 ;
 
+// Test for off-by-one errors in generating random values in a specified
+// range.
 class NotReallyRandomFencepostTest: NotReallyRandomTest
 	svc = 'nrrFencepostTest'
 

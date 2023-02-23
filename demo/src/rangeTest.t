@@ -4,8 +4,8 @@
 // Version 1.0
 // Copyright 2022 Diegesis & Mimesis
 //
-// This is a very simple demonstration "game" that illustrates the
-// functionality of the notReallyRandom library
+// Test case to evaluate if the PRNG logic for generating values in
+// a specified range is generating values outside the range.
 //
 // It can be compiled via the included makefile with
 //
@@ -35,30 +35,5 @@ gameMain:       GameMainDef
 
 		w = new NotReallyRandomRangeTest();
 		if(w.runTest()) "Range test passed.\n ";
-/*
-		local eLow, eHigh, i, min, max, n, p, v;
-
-		eLow = 0;
-		eHigh = 0;
-		n = 100000;
-		p = new XORshiftPRNG();
-		"Starting test.\n ";
-		for(i = 0; i < n; i++) {
-			min = rand(100);
-			max = rand(10000) + min + 1;
-			v = p.random(min, max);
-			if(v < min) eLow += 1;
-			if(v > max) eHigh += 1;
-		}
-		"Generated <<toString(n)>> random integers.\n ";
-		if((eLow == 0) && (eHigh == 0)) {
-			"Test success.\n ";
-			"No out of range values generated.\n ";
-		} else {
-			"TEST FAILED.\n ";
-			"Out of range low:  <<toString(eLow)>>\n ";
-			"Out of range high:  <<toString(eHigh)>>\n ";
-		}
-*/
 	}
 ;
