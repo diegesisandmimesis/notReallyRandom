@@ -254,4 +254,21 @@ class NotReallyRandomRunsTest: NotReallyRandomTest, StatTestRuns
 	pickOutcome() { return(prng.random(1, 64)); }
 ;
 
+class NotReallyRandomPerfTest: NotReallyRandomTest
+	svc = 'NotReallyRandomPerfTest'
+	runTest() {
+		local i;
+
+		initTest();
+		startTimestamp();
+		for(i = 0; i < iterations; i++)
+			pickOutcome();
+	}
+	report() {
+		_debug('running <<toString(iterations)>> iterations
+			took <<toString(getInterval().roundToDecimal(3))>>
+			seconds.');
+	}
+;
+
 #endif // NOT_REALLY_RANDOM_TESTS

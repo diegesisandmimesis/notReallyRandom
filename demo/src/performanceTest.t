@@ -27,36 +27,46 @@
 
 versionInfo:    GameID;
 
+// Class for both of our perf tests.  Entirely so we can twiddle the iterations
+// in one place for both.
+class PerfTest: NotReallyRandomPerfTest
+	// We need a lot of interations, because T3's timestamp resolution
+	// is small and random number generation is fast.
+	iterations = 1000000
+;
+
+// Class for generating values via our PRNG.  We use the global randomInt()
+// method (a macro) for convenience.
+class PRNGTest: PerfTest
+	svc = 'NotReallyRandom PRNG'
+	pickOutcome() { return(randomInt(1, 10)); }
+;
+
+// Class for generating values via T3's native rand() implementation.
+class RandTest: PerfTest
+	svc = 'native rand()'
+	pickOutcome() { return(rand(10) + 1); }
+;
+
 gameMain:       GameMainDef
-	runs = 1000000
-
-	newGame() {
-		runTests();
-	}
+	newGame() { runTests(); }
 	runTests() {
-		local i, t0, t1, x;
+		local r, t, t0, t1;
 
-		// This is pretty useless.
-		// This entire "test" is really just here to be a template
-		// to be edited and recompiled to compare the performance
-		// of different modifications.
+		t = new PRNGTest();
+		t.runTest();
+		t.report();
+		t0 = t.getInterval();
 
-		// Generate numbers with native rand() function.
-		notReallyRandomTimer.start();
-		for(i = 0; i < runs; i++) { x = rand(10); }
-		t1 = notReallyRandomTimer.getInterval();
-		"Generating <<toString(runs)>> integers:
-			rand() took <<toString(t1.roundToDecimal(3))>>
-			seconds.\n ";
+		t = new RandTest();
+		t.runTest();
+		t.report();
+		t1 = t.getInterval();
 
-		// Generate numbers with our PRNG.
-		notReallyRandomTimer.start();
-		for(i = 0; i < runs; i++) { x = randomInt(0, 9); }
-		t0 = notReallyRandomTimer.getInterval();
-		x = t0/t1;
-		"Generating <<toString(runs)>> integers:
-			randomInt() took <<toString(t0.roundToDecimal(3))>>
-			seconds (<<toString(x.roundToDecimal(3))>>x
-			slower).\n ";
+		// Ratio of the module's PRNG runtime to the native runtime.  We
+		// should expect that the module's PRNG will always be slower.
+		r = t0/t1;
+		"<.p>PRNG slowdown factor of
+			<<toString(r.roundToDecimal(3))>>\n ";
 	}
 ;
