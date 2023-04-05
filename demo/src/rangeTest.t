@@ -31,9 +31,10 @@ gameMain:       GameMainDef
 	// Simple test to make sure we're not generating values outside
 	// the allowed range.
 	runTest() {
-		local w;
+		local t;
 
-		w = new NotReallyRandomRangeTest();
-		if(w.runTest()) "Range test passed.\n ";
+		t = new NotReallyRandomRangeTest();
+		t.runTest();
+		t.report();
 	}
 ;

@@ -31,37 +31,25 @@ versionInfo:    GameID;
 
 gameMain:       GameMainDef
 	testList = [
-		new NotReallyRandomReseedTest(),
-		new NotReallyRandomXYTest(),
-		new NotReallyRandomIdxTest(),
-		new NotReallyRandomChiSquareTest(nil, nil, 0, 255),
-		new NotReallyRandomRunsTest(nil, nil, 0, 255)
+		//NotReallyRandomReseedTest,
+		//NotReallyRandomXYTest,
+		//NotReallyRandomIdxTest,
+		//NotReallyRandomChiSquareTest,
+		//NotReallyRandomRunsTest,
+		//NotReallyRandomRangeTest,
+		NotReallyFencepostTest
 	]
-	_prngIdx = 0
-	newGame() {
-		runTests();
-	}
+
+	newGame() { runTests(); }
+
 	runTests() {
-		local err, t;
+		local t;
 
-		err = 0;
-		t = 0;
-		
-		notReallyRandomTimer.start();
-		testList.forEach(function(o) {
-			t += 1;
-			if(!o.runTest()) err += 1;
+		testList.forEach(function(cls) {
+			"<.p> ";
+			t = cls.createInstance();
+			t.runTest();
+			t.report();
 		});
-
-		"Completed <<toString(t)>> tests in
-			<<toString(notReallyRandomTimer.getInterval()
-			.roundToDecimal(3))>>
-			seconds.\n ";
-		if(err == 0) {
-			"All tests passed.\n ";
-		} else {
-			"FAILED <<toString(err)>>
-				test<<((err > 1) ? 's' : '')>>.\n ";
-		}
 	}
 ;
