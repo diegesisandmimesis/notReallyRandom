@@ -35,11 +35,10 @@ class PerfTest: NotReallyRandomPerfTest
 	iterations = 1000000
 ;
 
-// Class for generating values via our PRNG.  We use the global randomInt()
-// method (a macro) for convenience.
+// Class for generating values via our PRNG.
 class PRNGTest: PerfTest
 	svc = 'NotReallyRandom PRNG'
-	pickOutcome() { return(randomInt(1, 10)); }
+	pickOutcome() { return(prng.random(1, 10)); }
 ;
 
 // Class for generating values via T3's native rand() implementation.
