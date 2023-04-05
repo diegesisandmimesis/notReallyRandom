@@ -2,16 +2,13 @@
 // notReallyRandom.h
 //
 
-// Uncomment to enable debugging options, including test methods
-// (in notReallyRandomTests.t)
+// Uncomment to enable debugging options.
 //#define __DEBUG_NOT_REALLY_RANDOM
-//
-// Uncomment to enable verbose logging
-//#define __DEBUG_NOT_REALLY_RANDOM_VERBOSE
 
 // Use to enable statistical tests
 //#define NOT_REALLY_RANDOM_TESTS
 
+// Dependency check applied if we're being compiled with the test classes.
 #ifdef NOT_REALLY_RANDOM_TESTS
 #include "statTest.h"
 #ifndef STAT_TEST_H
@@ -23,6 +20,7 @@
 #endif // STAT_TEST_H
 #endif // NOT_REALLY_RANDOM_TESTS
 
+// Some macros.
 #define gNRRseed(v) (notReallyRandom.setSeed(v))
 #define gNRRrand(var...) (notReallyRandom.random(##var))
 #define gNRRidx(a, var...) (notReallyRandom.idx(a, ##var))
