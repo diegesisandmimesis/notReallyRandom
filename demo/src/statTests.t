@@ -31,13 +31,13 @@ versionInfo:    GameID;
 
 gameMain:       GameMainDef
 	testList = [
-		//NotReallyRandomReseedTest,
-		//NotReallyRandomXYTest,
-		//NotReallyRandomIdxTest,
-		//NotReallyRandomChiSquareTest,
-		//NotReallyRandomRunsTest,
-		//NotReallyRandomRangeTest,
-		NotReallyFencepostTest
+		NotReallyRandomReseedTest,
+		NotReallyRandomXYTest,
+		NotReallyRandomIdxTest,
+		NotReallyRandomChiSquareTest,
+		NotReallyRandomRunsTest,
+		NotReallyRandomRangeTest
+		//NotReallyFencepostTest
 	]
 
 	newGame() { runTests(); }
