@@ -263,6 +263,102 @@ class XORshiftPRNG: NotReallyRandomPRNG
 	}
 ;
 
+// TADS3 implementation of xxHash
+class XXHashPRNG: NotReallyRandomPRNG
+	// _pr = static [ 2654435761, 2246822519, 3266489917, 668265263
+	//	374761393 ]
+	_pr = static [
+		[ 40503, 31153 ],
+		[ 34283, 51831 ],
+		[ 49842, 44605 ],
+		[ 10196, 60207 ],
+		[  5718, 26545 ]
+	]
+
+	nextValue(seed?) {
+		local a00, a16, b00, b16, c00, c16, lo, hi, v;
+
+		if(seed == nil)
+			seed = getSeed();
+
+		lo = seed & 0xffff;
+		hi = seed >> 16;
+
+		b00 = _pr[2][1];
+		b16 = _pr[2][2];
+
+		c00 = lo * b00;
+		c16 = c00 >> 16;
+
+		c16 += hi * b00;
+		c16 &= 0xffff;
+		c16 += lo * b16;
+
+		a00 = lo + (c00 & 0xffff);
+		a16 = a00 >>> 16;
+
+		a16 += hi + (c16 & 0xffff);
+
+		v = (a16 << 16) | (a00 & 0xffff);
+		v = (v << 13) | (v >> 19);
+
+		a00 = v & 0xffff;
+		a16 = v >>> 16;
+
+		b00 = _pr[1][1];
+		b16 = _pr[1][2];
+
+		c00 = a00 * b00;
+		c16 = c00 >>> 16;
+
+		c16 += a16 * b00;
+		c16 &= 0xffff;
+		c16 += a00 * b16;
+
+		c16 &= 0xffff;
+		v = c16 << 16;
+		v = v | c00;
+
+		return(v);
+	}
+;
+/*
+// TADS3 implementation of xxHash
+class XXHashPRNG: NotReallyRandomPRNG
+	// _pr = static [ 2654435761, 2246822519, 3266489917, 668265263
+	//	374761393 ]
+	_pr = static [ -1640531535, -2048144777, -1028477379, 668265263,
+		374761393 ]
+
+	nextValue(seed?) {
+		local ar, v;
+
+		// If we were passed a seed, we use it.  Otherwise we
+		// call getSeed(), which will initialize us up a seed or
+		// use an existing one, as appropriate.
+		if(seed == nil)
+			seed = getSeed();
+
+		v = (seed + _pr[5]) & 0xffffffff;
+
+		v = v ^ (v >>> 15);
+		v = ((v & 0xffff) * _pr[2] & 0xffffffff)
+			+ ((v >>> 16) * _pr[2] << 16);
+		v = v ^ (v >>> 13);
+		v = ((v & 0xffff) * _pr[3] & 0xffffffff)
+			+ ((v >>> 16) * _pr[3] << 16);
+		v = v ^ (v >> 16);
+
+		while(v < -2147483647)
+			v += 2147483647;
+		while(v > 2147483647)
+			v -= 2147483647;
+
+		return(v);
+	}
+;
+*/
+
 // This is how we assign a global default PRNG.  We can still create
 // other PRNG instances if we want, but this is the one that gets pointed
 // to by all of the #defines in notReallyRandom.h.

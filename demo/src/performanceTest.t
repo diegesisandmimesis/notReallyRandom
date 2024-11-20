@@ -52,6 +52,8 @@ gameMain:       GameMainDef
 	runTests() {
 		local r, t, t0, t1;
 
+		nrrSeed(123);
+
 		t = new PRNGTest();
 		t.runTest();
 		t.report();

@@ -41,6 +41,7 @@ class NotReallyRandomTest: StatTest
 // We generate random bounds for each pass, so we have to do a little
 // juggling to convert our results
 class NotReallyRandomRangeTest: NotReallyRandomTest, StatTestFencepost
+	svc = 'NotReallyRandomRangeTest'
 	// Our valid outcomes are 1 and 2.
 	outcomes = static [ 1, 2 ]
 
@@ -147,7 +148,8 @@ class NotReallyRandomXYTest: NotReallyRandomReseedTest
 
 	// We replace runTest() again because we're not doing a standard
 	// stat test.
-	runTests() {
+	//runTests() {
+	runTest() {
 		local i, xs, ys;
 
 		initTest();
@@ -195,7 +197,8 @@ class NotReallyRandomIdxTest: NotReallyRandomReseedTest
 
 	// We replace runTest() again because we're not doing a standard
 	// stat test.
-	runTests() {
+	//runTests() {
+	runTest() {
 		local i, idxs;
 
 		initTest();
@@ -271,6 +274,16 @@ class NotReallyRandomPerfTest: NotReallyRandomTest
 		_debug('running <<toString(iterations)>> iterations
 			took <<toString(getInterval().roundToDecimal(3))>>
 			seconds.');
+	}
+;
+
+class NotReallyRandomWeightTest: NotReallyRandomTest, StatTestChiSquare
+	svc = 'NotReallyRandomWeightTest'
+
+	outcomes = static [ 'foo', 'bar', 'baz' ]
+	weights = static [ 3000, 3000, 3000 ]
+	pickOutcome() {
+		return(randomElementWeighted(outcomes, weights, prng));
 	}
 ;
 

@@ -21,10 +21,10 @@
 #endif // NOT_REALLY_RANDOM_TESTS
 
 // Some macros.
-#define gNRRseed(v) (notReallyRandom.setSeed(v))
-#define gNRRrand(var...) (notReallyRandom.random(##var))
-#define gNRRidx(a, var...) (notReallyRandom.idx(a, ##var))
-#define gNRRxy(a, b, var...) (notReallyRandom.xy(a, b, ##var))
+#define nrrSeed(v) (notReallyRandom.setSeed(v))
+#define nrrRand(var...) (notReallyRandom.random(##var))
+#define nrrIdx(a, var...) (notReallyRandom.idx(a, ##var))
+#define nrrXY(a, b, var...) (notReallyRandom.xy(a, b, ##var))
 
 // Don't comment out.  Used for dependency checking.
 #define NOT_REALLY_RANDOM_H

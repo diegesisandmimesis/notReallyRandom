@@ -91,6 +91,28 @@ randomElement(lst, prng?) {
 	return(lst[randomInt(1, lst.length, prng)]);
 }
 
+// Weighted version of the above.  First arg is the list of choices, second
+// arg is a list containing the integer weights of each choice.
+// Example:  randomElementWeighted([ 'foo', 'bar', 'baz' ], [ 5, 10, 20 ])
+//	will randomly pick 'foo', 'bar', or 'baz', with 'foo' happening
+//	half as often as 'bar' and 'bar' happening half as often as
+//	'baz' ('foo' 5 in 35 or 14.3%, 'bar' 10 in 35 or 28.6%, 'baz'
+//	20 in 35 or 57.1%).
+randomElementWeighted(lst, weights, prng?) {
+	local i, t, v;
+
+	if(lst.length != weights.length) return(nil);
+	t = 0;
+	weights.forEach({ x: t += x });
+	v = randomInt(1, t, prng);
+	t = weights[1];
+	for(i = 1; i <= weights.length; i++) {
+		if(v < t) return(lst[i]);
+		t += weights[i];
+	}
+	return(lst[lst.length]);
+}
+
 // Return a shuffled list of map directions.
 // If the first argument is boolean true the diagonal directions are included,
 // otherwise just the four cardinal directions are used.
@@ -127,3 +149,5 @@ notReallyRandomStringToSeed(str) {
 
 	return(v);
 }
+
+nrrStringToSeed(str) { return(notReallyRandomStringToSeed(str)); }

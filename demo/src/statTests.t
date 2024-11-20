@@ -36,7 +36,8 @@ gameMain:       GameMainDef
 		NotReallyRandomIdxTest,
 		NotReallyRandomChiSquareTest,
 		NotReallyRandomRunsTest,
-		NotReallyRandomRangeTest
+		NotReallyRandomRangeTest,
+		NotReallyRandomWeightTest
 		//NotReallyFencepostTest
 	]
 
