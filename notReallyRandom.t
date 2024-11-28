@@ -99,18 +99,99 @@ randomElement(lst, prng?) {
 //	'baz' ('foo' 5 in 35 or 14.3%, 'bar' 10 in 35 or 28.6%, 'baz'
 //	20 in 35 or 57.1%).
 randomElementWeighted(lst, weights, prng?) {
+	if((lst == nil) || (weights == nil)) return(nil);
+	if(lst.length != weights.length) return(nil);
+	return(lst[randomIndexWeighted(weights, prng)]);
+}
+
+randomIndexWeighted(weights, prng?) {
 	local i, t, v;
 
-	if(lst.length != weights.length) return(nil);
 	t = 0;
 	weights.forEach({ x: t += x });
 	v = randomInt(1, t, prng);
-	t = weights[1];
+	t = 0;
 	for(i = 1; i <= weights.length; i++) {
-		if(v < t) return(lst[i]);
 		t += weights[i];
+		if(v < t) return(i);
 	}
-	return(lst[lst.length]);
+	return(weights.length);
+}
+
+// Simple Chinese restaurant process implementation.
+// The restaurant has an unlimited number of tables, and each table
+// can hold an unlimited number of customers.
+// When a new customer arrives, they can either be seated at
+// a new (currently empty) table or sit at a table that already
+// has customers at it.  The chances of being seated at an already
+// occupied table is proportional to the number of customers already
+// seated at it--that is, the more people are already at a table,
+// the more likely a new customer is to be seated there.
+// Arguments are:
+//	count	total number of customers to seat
+//	theta	tuning factor.  the prob. of customer n + 1 picking an
+//		empty table is theta / ( n + theta ), and the prob.
+//		of being seated at a table with m customers already
+//		seated at it is m / ( n + theta )
+//		default: 1
+//	weight	integer weight used to convert decimal probabilities
+//		into integer weights
+//		default: 1000
+//	prng	PRNG instance to use
+//		no default
+randomChineseRestaurantProcess(count, theta?, weight?, prng?) {
+	local d, i, j, prob, tables;
+
+	tables = new Vector(count);
+
+	// First customer always sits at a new table.
+	tables.append(1);
+
+	// Sanity check.
+	if(count < 2) return(tables);
+
+	// Theta is a fudge factor for tuning the likelihood of a
+	// customer picking an empty table.  Default is 1.
+	theta = new BigNumber(theta ? theta : 1);
+
+	weight = (weight ? weight : 1000);
+
+	prob = new Vector(count);
+
+	// Probabilities are for customer n + 1, so we iterate
+	// from 1 (to seat the second customer) and use < instead
+	// of <=.
+	for(i = 1; i < count; i++) {
+		// Reset the probability vector.
+		prob.setLength(0);
+
+		// Denominator for all our probabilities.
+		d = new BigNumber(i) + theta;
+
+		// Chance of picking an empty table.
+		prob.append(theta / d);
+
+		// Probabilities for sitting at each in-use table.
+		tables.forEach({ x: prob.append(new BigNumber(x) / d) });
+
+		// Convert the probabilities to integer weights.
+		for(j = 1; j <= prob.length; j++) {
+			prob[j] = toIntegerSafe(prob[j] * weight);
+		}
+
+		// Pick a table.  1 is a new table, anything else is
+		// the table number + 1 (because of how we assembled
+		// the vector of weights above).
+		j = randomIndexWeighted(prob, prng);
+		if(j == 1)
+			tables.append(1);
+		else
+			tables[j - 1] += 1;
+	}
+
+	// Return value, which is a vector containing the number of
+	// customers seated at each table.
+	return(tables);
 }
 
 // Return a shuffled list of map directions.
