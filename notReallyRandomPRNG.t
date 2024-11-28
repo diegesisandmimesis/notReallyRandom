@@ -322,42 +322,6 @@ class XXHashPRNG: NotReallyRandomPRNG
 		return(v);
 	}
 ;
-/*
-// TADS3 implementation of xxHash
-class XXHashPRNG: NotReallyRandomPRNG
-	// _pr = static [ 2654435761, 2246822519, 3266489917, 668265263
-	//	374761393 ]
-	_pr = static [ -1640531535, -2048144777, -1028477379, 668265263,
-		374761393 ]
-
-	nextValue(seed?) {
-		local ar, v;
-
-		// If we were passed a seed, we use it.  Otherwise we
-		// call getSeed(), which will initialize us up a seed or
-		// use an existing one, as appropriate.
-		if(seed == nil)
-			seed = getSeed();
-
-		v = (seed + _pr[5]) & 0xffffffff;
-
-		v = v ^ (v >>> 15);
-		v = ((v & 0xffff) * _pr[2] & 0xffffffff)
-			+ ((v >>> 16) * _pr[2] << 16);
-		v = v ^ (v >>> 13);
-		v = ((v & 0xffff) * _pr[3] & 0xffffffff)
-			+ ((v >>> 16) * _pr[3] << 16);
-		v = v ^ (v >> 16);
-
-		while(v < -2147483647)
-			v += 2147483647;
-		while(v > 2147483647)
-			v -= 2147483647;
-
-		return(v);
-	}
-;
-*/
 
 // This is how we assign a global default PRNG.  We can still create
 // other PRNG instances if we want, but this is the one that gets pointed
