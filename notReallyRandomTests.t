@@ -148,7 +148,6 @@ class NotReallyRandomXYTest: NotReallyRandomReseedTest
 
 	// We replace runTest() again because we're not doing a standard
 	// stat test.
-	//runTests() {
 	runTest() {
 		local i, xs, ys;
 
@@ -197,7 +196,6 @@ class NotReallyRandomIdxTest: NotReallyRandomReseedTest
 
 	// We replace runTest() again because we're not doing a standard
 	// stat test.
-	//runTests() {
 	runTest() {
 		local i, idxs;
 

@@ -87,8 +87,27 @@ randomShuffle(lst, prng?) {
 }
 
 // Returns a single random element of the passed List.
-randomElement(lst, prng?) {
-	return(lst[randomInt(1, lst.length, prng)]);
+// Optional third arg is a callback function used to test elements;
+// only elements for which the callback returns boolean true can
+// be selected.
+randomElement(lst, prng?, cb?) {
+	local l;
+
+	// Check the first arg.
+	if((lst == nil) || !lst.ofKind(Collection)) return(nil);
+	if(lst.length < 1) return(nil);
+
+	// If we didn't get a callback, just return any random element.
+	if(dataType(cb == TypeNil))
+		return(lst[randomInt(1, lst.length, prng)]);
+
+	// Shuffle the list.
+	l = randomShuffle(lst, prng);
+
+	// Return the first element in the shuffled list for which
+	// the callback returns true when called with the element as
+	// an arg.
+	return(l.valWhich(cb));
 }
 
 // Weighted version of the above.  First arg is the list of choices, second
@@ -176,7 +195,7 @@ randomChineseRestaurantProcess(count, theta?, weight?, prng?) {
 
 		// Convert the probabilities to integer weights.
 		for(j = 1; j <= prob.length; j++) {
-			prob[j] = toIntegerSafe(prob[j] * weight);
+			prob[j] = toIntegerNRR(prob[j] * weight);
 		}
 
 		// Pick a table.  1 is a new table, anything else is
@@ -232,3 +251,11 @@ notReallyRandomStringToSeed(str) {
 }
 
 nrrStringToSeed(str) { return(notReallyRandomStringToSeed(str)); }
+
+toIntegerNRR(v) {
+	local r;
+
+	try { r = toInteger(v); }
+	catch(Exception e) { r = 2147483647; }
+	finally { return(r); }
+}

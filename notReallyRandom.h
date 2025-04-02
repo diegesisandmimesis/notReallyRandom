@@ -26,5 +26,15 @@
 #define nrrIdx(a, var...) (notReallyRandom.idx(a, ##var))
 #define nrrXY(a, b, var...) (notReallyRandom.xy(a, b, ##var))
 
+/*
+#define salsaROTL(a, b) (((a) << (b)) | ((a) >> (32 - (b))))
+#define salsaQR(a, b, c, d) \
+	b ^= salsaROTL(a + d, 7); \
+	c ^= salsaROTL(b + a, 9); \
+	d ^= salsaROTL(c + b, 13); \
+	a ^= salsaROTL(d + c, 18);
+#define salsaRounds 20
+*/
+
 // Don't comment out.  Used for dependency checking.
 #define NOT_REALLY_RANDOM_H
