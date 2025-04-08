@@ -137,6 +137,30 @@ randomIndexWeighted(weights, prng?) {
 	return(weights.length);
 }
 
+// Pick a random index in the given list.
+randomIndex(lst, prng?, cb?) {
+	local i, l;
+
+	// Check the first arg.
+	if((lst == nil) || !lst.ofKind(Collection)) return(nil);
+	if(lst.length < 1) return(nil);
+
+	// If we didn't get a callback, just return any random index.
+	if(dataType(cb == TypeNil))
+		return(randomInt(1, lst.length, prng));
+
+	// Shuffle the list.
+	l = randomShuffle(lst, prng);
+
+	// Return the first element in the shuffled list for which
+	// the callback returns true when called with the element as
+	// an arg.
+	for(i = 1; i <= l.length; i++) {
+		if((cb)(l[i]) == true) return(i);
+	}
+	return(nil);
+}
+
 // Simple Chinese restaurant process implementation.
 // The restaurant has an unlimited number of tables, and each table
 // can hold an unlimited number of customers.
