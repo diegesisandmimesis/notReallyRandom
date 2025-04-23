@@ -36,5 +36,9 @@
 #define salsaRounds 20
 */
 
+#ifndef isPRNG
+#define isPRNG(v) ((v != nil) && v.ofKind(NotReallyRandom))
+#endif // isPRNG
+
 // Don't comment out.  Used for dependency checking.
 #define NOT_REALLY_RANDOM_H
