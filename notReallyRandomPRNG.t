@@ -91,21 +91,13 @@ class NotReallyRandomPRNG: object
 		return(0);
 	}
 
-	// random() is the base number generation method.  Args are:
-	// 	min	Minimum value returned
-	//	max	Maximum value returned
-	//	seed	Seed value to use for the PRNG
-	random(min?, max?, seed?) {
-		local n, r, range, v;
+	// Generate a random-ish number in the given range.
+	_random(rng?, seed?) {
+		local n, r, v;
 
-		// Sanity check our arguments.
-		if((min == nil) || (min < 0)) min = 0;
-		if((max == nil) || (max > _bigInt)) max = _bigInt;
-
-		// We handle the case where we're pulling a number from
-		// the full range separately to avoid the comparatively
-		// expensive modulo operation.
-		if((min == 0) && (max == _bigInt)) {
+		// Handle the case where the range is the full range
+		// we generate in.
+		if(rng == _bigInt) {
 			v = nextValue(seed);
 
 			// When we're out of range we just chuck the value
@@ -116,26 +108,31 @@ class NotReallyRandomPRNG: object
 
 			return(v);
 		} else {
-			// Compute the size of the range we're picking from.
-			range = max - min + 1;
-
 			// Figure out how many of our ranges fit inside the
 			// maximum integer range.
-			r = _bigInt / range;
+			r = _bigInt / rng;
 
 			// The size of the above times our range.  If the
 			// number we pick is less than or equal to this, then
 			// we can safely convert it to a number inside our
 			// desired range without skewing the results.
-			n = range * r;
+			n = rng * r;
 
 			// Keep picking values until we get one in our range.
 			v = nextValue(seed);
 			while((v < 0) || (v >= n))
 				v = nextValue();
 
-			return((v % range) + min);
+			return(v % rng);
 		}
+	}
+
+	// random() is the base number generation method.  Args are:
+	// 	min	Minimum value returned
+	//	max	Maximum value returned
+	//	seed	Seed value to use for the PRNG
+	random(min?, max?, seed?) {
+		return(_random(max - min + 1, seed) + min);
 	}
 
 	// idx() returns a pseudorandom value that (deterministically)
