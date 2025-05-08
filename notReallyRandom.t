@@ -75,7 +75,9 @@ randomBigNumberNormal(mean, sigma, prng?) {
 randomShuffle(lst, prng?) {
 	local i, k, r, tmp;
 
-	if((lst == nil) || !lst.ofKind(List)) return([]);
+	if(lst == nil) return([]);
+	if(lst.ofKind(Vector)) lst = lst.toList();
+	if(!lst.ofKind(List)) return([]);
 	r = lst.sublist(1, lst.length);
 	for(i = r.length; i >= 2; i--) {
 		k = randomInt(1, i, prng);
@@ -98,7 +100,7 @@ randomElement(lst, prng?, cb?) {
 	if(lst.length < 1) return(nil);
 
 	// If we didn't get a callback, just return any random element.
-	if(dataType(cb == TypeNil))
+	if(((dataType(cb) == TypeNil) || (dataTypeXlat(cb) != TypeFuncPtr)))
 		return(lst[randomInt(1, lst.length, prng)]);
 
 	// Shuffle the list.
