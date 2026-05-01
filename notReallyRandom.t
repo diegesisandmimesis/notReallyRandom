@@ -70,6 +70,31 @@ randomBigNumberNormal(mean, sigma, prng?) {
 	return(mean + (x * sigma));
 }
 
+// Return a random integers approximating a normal distribution with the
+// given mean and standard deviation.
+// Uses Irwin-Hall.
+randomIntNormal(mean, sigma, prng?) {
+	local i, z;
+
+	z = 0;
+
+	// 12 samples is a magic value for Irwin-Hall.  It falls naturally
+	// because if some variable x is uniform over [0, 1] then
+	// the variance of x is 1/12:
+	//	Sum(x) = integral sigma squared x dx = 1/2
+	//	Sum(x^2) = integral sigma squared x^w du = 1/3,
+	//	Var(x) = Sum(x^2) - (Sum(x))^2
+	//		= 1/3 - (1/2)^2 = 4/12 - 3/12 = 1/12
+	// So with 12 samples the variance = 1
+	for(i = 1; i <= 12; i++)
+		z += randomInt(0, 1000, prng);
+
+	// Re-centering the distribution.
+	z -= 6000;
+
+	return(mean + (z * sigma) / 1000);
+}
+
 // Returns a shuffled copy of the passed List.
 // Uses Fischer/Yates to do the shuffling.
 randomShuffle(lst, prng?) {
