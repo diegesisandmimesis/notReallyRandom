@@ -150,6 +150,19 @@ randomElementWeighted(lst, weights, prng?) {
 	return(lst[randomIndexWeighted(weights, prng)]);
 }
 
+randomElementWeightedByProp(lst, prop, prng?) {
+	local i, v, w;
+	if((lst == nil) || (dataType(prop) == nil)) return(nil);
+	if(!lst.length) return(nil);
+	w = new Vector(lst.length);
+	for(i = 1; i <= lst.length; i++) {
+		v = toInteger((lst[i]).(prop));
+		if(v == nil) v = 0;
+		w.append(v);
+	}
+	return(lst[randomIndexWeighted(w, prng)]);
+}
+
 randomIndexWeighted(weights, prng?) {
 	local i, t, v;
 
