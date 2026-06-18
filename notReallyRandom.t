@@ -172,7 +172,7 @@ randomIndexWeighted(weights, prng?) {
 	t = 0;
 	for(i = 1; i <= weights.length; i++) {
 		t += weights[i];
-		if(v < t) return(i);
+		if(v <= t) return(i);
 	}
 	return(weights.length);
 }
